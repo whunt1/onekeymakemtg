@@ -1,5 +1,4 @@
-# onekeymakemtg
-编译安装最新版 mtproxy-go 一键脚本   
+# 编译安装最新版 mtproxy-go 一键脚本   
 因为go版mtproxy代码更新了抗重放攻击等功能后，原作者没有直接放出编译好的程序，所以根据逗比原版一键脚本魔改，直接拉取最新代码进行编译
    
 * 脚本说明: Mtproto Proxy Go版 一键编译安装管理脚本
