@@ -143,7 +143,7 @@ Download(){
 	fi
 	cd ${file}
 	[[ ! -e "mtg" ]] && echo -e "${Error} MTProxy 重命名失败 !" && rm -rf "${file}" && exit 1
-	rm -rf "${file}/src"
+	rm -rf "${file}/src" && rm -rf "${file}/go"
 	chmod +x mtg
 	echo "${new_ver}" > ${Now_ver_File}
 }
