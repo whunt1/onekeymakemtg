@@ -120,12 +120,12 @@ Download(){
 		export GOPATH=${file}
 		export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 		[[ ! -e "${file}/go/VERSION" ]] && echo -e "${Error} go 安装失败 !" && rm -rf "${file}" && exit 1
-		echo -e "${Info} go 安装完成 版本:\c" && cat "${file}/go/VERSION"
+		echo -e "${Info} go 安装完成 版本:\c" && cat "${file}/go/VERSION" && echo -e ""
 	else
 		export GOROOT=${file}/go
 		export GOPATH=${file}
 		export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-		echo -e "${Info} go 已安装 版本:\c" && cat "${file}/go/VERSION"
+		echo -e "${Info} go 已安装 版本:\c" && cat "${file}/go/VERSION" && echo -e ""
 	fi
 	echo -e "${Info} 开始拉取 mtproxy-go 源码 时间较长请耐心等待"
 	go get github.com/9seconds/mtg
