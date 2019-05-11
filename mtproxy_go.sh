@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: MTProxy Golang
-#	Version: 1.1.1
+#	Version: 1.1.2
 #	Author: Toyo && July
 #=================================================
 
-sh_ver="1.1.1"
+sh_ver="1.1.2"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/mtproxy-go"
@@ -746,7 +746,7 @@ elif [[ "${action}" == "monitorip" ]]; then
 	crontab_monitorip
 else
 	echo && echo -e "  MTProxy-Go 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
-  ---- Toyo | doub.io/shell-jc9 ----
+  ---- Toyo && July | doubibackup.com/es5fj9se.html ----
   
  ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
 ————————————
