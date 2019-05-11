@@ -112,21 +112,38 @@ Download(){
 		bit="arm"
 	fi
 	echo -e "${Info} 开始检查编译环境！"
-	wget -N --no-check-certificate https://storage.googleapis.com/golang/go1.10.1.linux-amd64.tar.gz
-	tar -xvf go1.10.1.linux-amd64.tar.gz
-	export GOROOT=${file}/go
-	export GOPATH=${file}
-	export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+	if [[ ! -e "${file}/go/VERSION" ]]; then
+		echo -e "${Info} 开始安装编译环境！"
+		wget -N --no-check-certificate https://storage.googleapis.com/golang/go1.10.1.linux-amd64.tar.gz
+		tar -xvf go1.10.1.linux-amd64.tar.gz
+		export GOROOT=${file}/go
+		export GOPATH=${file}
+		export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+		[[ ! -e "${file}/go/VERSION" ]] && echo -e "${Error} go 安装失败 !" && rm -rf "${file}" && exit 1
+		echo -e "${Info} go 安装完成 版本:\c" && cat "${file}/go/VERSION" && echo -e "\n"
+	else
+		export GOROOT=${file}/go
+		export GOPATH=${file}
+		export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+		echo -e "${Info} go 已安装 版本:\c" && cat "${file}/go/VERSION" && echo -e "\n"
+	fi
 	echo -e "${Info} 开始拉取 mtproxy-go 源码 时间较长请耐心等待"
 	go get github.com/9seconds/mtg
 	cd ${file}/src/github.com/9seconds/mtg
 	echo -e "${Info} 开始编译 mtproxy-go 源码 时间较长请耐心等待"
-	make crosscompile
-	[[ ! -e "${file}/src/github.com/9seconds/mtg/ccbuilds/mtg-linux-${bit}" ]] && echo -e "${Error} MTProxy 编译失败 !" && rm -rf "${file}" && exit 1
-	cd ${file}/src/github.com/9seconds/mtg/ccbuilds
-	mv "mtg-linux-${bit}" "${file}/mtg"
+	make
+	if [[ ! -e "${file}/src/github.com/9seconds/mtg/mtg" ]]; then
+		echo -e "${Error} MTProxy 编译失败 ! 正在重新编译"
+		make crosscompile
+		[[ ! -e "${file}/src/github.com/9seconds/mtg/ccbuilds/mtg-linux-${bit}" ]] && echo -e "${Error} MTProxy 编译失败 !" && rm -rf "${file}" && exit 1
+		cd ${file}/src/github.com/9seconds/mtg/ccbuilds
+		mv "mtg-linux-${bit}" "${file}/mtg"
+	else
+		mv "mtg" "${file}/mtg"
+	fi
 	cd ${file}
 	[[ ! -e "mtg" ]] && echo -e "${Error} MTProxy 重命名失败 !" && rm -rf "${file}" && exit 1
+	rm -rf "${file}/src"
 	chmod +x mtg
 	echo "${new_ver}" > ${Now_ver_File}
 }
