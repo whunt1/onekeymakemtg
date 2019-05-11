@@ -115,17 +115,17 @@ Download(){
 	if [[ ! -e "${file}/go/VERSION" ]]; then
 		echo -e "${Info} 开始安装编译环境！"
 		wget -N --no-check-certificate https://storage.googleapis.com/golang/go1.10.1.linux-amd64.tar.gz
-		tar -xvf go1.10.1.linux-amd64.tar.gz
+		tar -xf go1.10.1.linux-amd64.tar.gz && rm -f go1.10.1.linux-amd64.tar.gz
 		export GOROOT=${file}/go
 		export GOPATH=${file}
 		export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 		[[ ! -e "${file}/go/VERSION" ]] && echo -e "${Error} go 安装失败 !" && rm -rf "${file}" && exit 1
-		echo -e "${Info} go 安装完成 版本:\c" && cat "${file}/go/VERSION" && echo -e "\n"
+		echo -e "${Info} go 安装完成 版本:\c" && cat "${file}/go/VERSION"
 	else
 		export GOROOT=${file}/go
 		export GOPATH=${file}
 		export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-		echo -e "${Info} go 已安装 版本:\c" && cat "${file}/go/VERSION" && echo -e "\n"
+		echo -e "${Info} go 已安装 版本:\c" && cat "${file}/go/VERSION"
 	fi
 	echo -e "${Info} 开始拉取 mtproxy-go 源码 时间较长请耐心等待"
 	go get github.com/9seconds/mtg
