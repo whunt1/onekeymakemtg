@@ -9,3 +9,59 @@
 ```bash
 wget -N --no-check-certificate https://github.com/whunt1/onekeymakemtg/raw/master/mtproxy_go.sh && chmod +x mtproxy_go.sh && bash mtproxy_go.sh
 ```
+
+------
+
+# 编译安装最新go版mtproxy教程
+安装基础环境   
+      
+Ubuntu/Debian: apt-get install -y git gcc
+CentOS: yum install -y git gcc
+
+安装原版逗比一键脚本   
+
+wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/mtproxy_go.sh && chmod +x mtproxy_go.sh && bash mtproxy_go.sh 
+
+安装完成后执行 bash mtproxy_go.sh 停止mtp
+
+然后下载安装go语言编译环境   
+
+wget -N --no-check-certificate https://storage.googleapis.com/golang/go1.10.1.linux-amd64.tar.gz && tar -xvf go1.10.1.linux-amd64.tar.gz
+
+mv go /usr/local
+
+export GOROOT=/usr/local/go
+
+export GOPATH=$HOME/mtg
+
+export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+
+cd $HOME
+
+拉取 mtproxy-go 源码
+
+go get github.com/9seconds/mtg
+
+cd $HOME/mtg/src/github.com/9seconds/mtg
+
+只编译本机，编译完成过后，在当前目录，文件名为 mtp
+
+make
+
+mv mtg /usr/local/mtproxy-go/mtg
+
+>跨平台编译，编译完成过后在 ccbuilds 目录
+>
+>make crosscompile
+>
+>cd ccbuilds/
+>
+>移动对应编译好的程序覆盖旧版程序
+>
+>mv mtg-linux-amd64 /usr/local/mtproxy-go/mtg
+
+修改文件权限并重新运行
+
+chmod +x /usr/local/mtproxy-go/mtg
+
+执行 bash mtproxy_go.sh 再次启动mtp
