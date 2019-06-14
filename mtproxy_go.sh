@@ -94,9 +94,9 @@ check_ver_comparison(){
 Download(){
 	echo -e "${Info} 开始检查依赖软件！"
 	if [[ ${release} == "centos" ]]; then
-		yum install git gcc -y
+		yum install git gcc automake autoconf libtool make -y
 	else
-		apt-get install git gcc -y
+		apt-get install git gcc automake autoconf libtool make -y
 	fi
 	if [[ ! -e "${file}" ]]; then
 		mkdir "${file}"
