@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: MTProxy Golang
-#	Version: 1.1.4
+#	Version: 1.1.5
 #	Author: Toyo && July
 #=================================================
 
-sh_ver="1.1.4"
+sh_ver="1.1.5"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/mtproxy-go"
@@ -144,7 +144,7 @@ Download(){
 	fi
 	cd ${file}
 	[[ ! -e "mtg" ]] && echo -e "${Error} MTProxy 重命名失败 !" && rm -rf "${file}" && exit 1
-	rm -rf "${file}/src" && rm -rf "${file}/go"
+	rm -rf "${file}/src" && rm -rf "${file}/go" && rm -rf "${file}/pkg"
 	chmod +x mtg
 	echo "${new_ver}" > ${Now_ver_File}
 }
