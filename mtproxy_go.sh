@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: MTProxy Golang
-#	Version: 1.1.3
+#	Version: 1.1.4
 #	Author: Toyo && July
 #=================================================
 
-sh_ver="1.1.3"
+sh_ver="1.1.4"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/mtproxy-go"
@@ -114,8 +114,8 @@ Download(){
 	echo -e "${Info} 开始检查编译环境！"
 	if [[ ! -e "${file}/go/VERSION" ]]; then
 		echo -e "${Info} 开始安装编译环境！"
-		wget -N --no-check-certificate https://storage.googleapis.com/golang/go1.10.1.linux-amd64.tar.gz
-		tar -xf go1.10.1.linux-amd64.tar.gz && rm -f go1.10.1.linux-amd64.tar.gz
+		wget -N --no-check-certificate https://dl.google.com/go/go1.13.3.linux-amd64.tar.gz
+		tar -xf go1.13.3.linux-amd64.tar.gz && rm -f go1.13.3.linux-amd64.tar.gz
 		export GOROOT=${file}/go
 		export GOPATH=${file}
 		export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
@@ -128,8 +128,8 @@ Download(){
 		echo -e "${Info} go 已安装 版本:\c" && cat "${file}/go/VERSION" && echo -e " "
 	fi
 	echo -e "${Info} 开始拉取 mtproxy-go 源码 时间较长请耐心等待"
-	go get github.com/9seconds/mtg
-	wget --no-check-certificate https://raw.githubusercontent.com/whunt1/onekeymakemtg/master/allegro_bigcache_shard.go -O ${file}/src/github.com/allegro/bigcache/shard.go
+	go get -d github.com/9seconds/mtg
+	# wget --no-check-certificate https://raw.githubusercontent.com/whunt1/onekeymakemtg/master/allegro_bigcache_shard.go -O ${file}/src/github.com/allegro/bigcache/shard.go
 	cd ${file}/src/github.com/9seconds/mtg
 	echo -e "${Info} 开始编译 mtproxy-go 源码 时间较长请耐心等待"
 	make
