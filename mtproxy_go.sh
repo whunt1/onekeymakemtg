@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: MTProxy Golang
-#	Version: 1.1.5
+#	Version: 2.0.0
 #	Author: Toyo && July
 #=================================================
 
-sh_ver="1.1.5"
+sh_ver="2.0.0"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/mtproxy-go"
@@ -112,33 +112,31 @@ Download(){
 		bit="arm"
 	fi
 	echo -e "${Info} 开始检查编译环境！"
-	if [[ ! -e "${file}/go/VERSION" ]]; then
+	if [[ ! -e "/tmp/go/VERSION" ]]; then
 		echo -e "${Info} 开始安装编译环境！"
-		wget -N --no-check-certificate https://dl.google.com/go/go1.13.3.linux-amd64.tar.gz
-		tar -xf go1.13.3.linux-amd64.tar.gz && rm -f go1.13.3.linux-amd64.tar.gz
-		export GOROOT=${file}/go
+		go_download_link=$(wget -qO- "https://golang.org/dl/" | sed -n '/class="download downloadBox"/,+1 s/.*href="\([^"]*\).*$/\1/p' | grep "linux-amd64")
+		wget -N --no-check-certificate ${go_download_link}
+		tar -xf go*linux-amd64.tar.gz && rm -f go*linux-amd64.tar.gz
+		mv go /tmp/go
+		export GOROOT=/tmp/go
 		export GOPATH=${file}
 		export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-		[[ ! -e "${file}/go/VERSION" ]] && echo -e "${Error} go 安装失败 !" && rm -rf "${file}" && exit 1
+		[[ ! -e "/tmp/go/VERSION" ]] && echo -e "${Error} go 安装失败 !" && rm -rf "${file}" && exit 1
 		echo -e "${Info} go 安装完成 版本:\c" && cat "${file}/go/VERSION" && echo -e " "
 	else
-		export GOROOT=${file}/go
+		export GOROOT=/tmp/go
 		export GOPATH=${file}
 		export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 		echo -e "${Info} go 已安装 版本:\c" && cat "${file}/go/VERSION" && echo -e " "
 	fi
 	echo -e "${Info} 开始拉取 mtproxy-go 源码 时间较长请耐心等待"
-	go get -d github.com/9seconds/mtg
-	# wget --no-check-certificate https://raw.githubusercontent.com/whunt1/onekeymakemtg/master/allegro_bigcache_shard.go -O ${file}/src/github.com/allegro/bigcache/shard.go
-	cd ${file}/src/github.com/9seconds/mtg
+	git clone -b master https://github.com/9seconds/mtg.git src
+	cd src & go mod download 
 	echo -e "${Info} 开始编译 mtproxy-go 源码 时间较长请耐心等待"
-	make
-	if [[ ! -e "${file}/src/github.com/9seconds/mtg/mtg" ]]; then
-		echo -e "${Error} MTProxy 编译失败 ! 正在重新编译"
-		make crosscompile
-		[[ ! -e "${file}/src/github.com/9seconds/mtg/ccbuilds/mtg-linux-${bit}" ]] && echo -e "${Error} MTProxy 编译失败 !" && rm -rf "${file}" && exit 1
-		cd ${file}/src/github.com/9seconds/mtg/ccbuilds
-		mv "mtg-linux-${bit}" "${file}/mtg"
+	go build
+	if [[ ! -e "${file}/src/mtg" ]]; then
+		echo -e "${Error} MTProxy 编译失败 !"
+		rm -rf "${file}" && exit 1
 	else
 		mv "mtg" "${file}/mtg"
 	fi
@@ -176,20 +174,33 @@ Write_config(){
 	cat > ${mtproxy_conf}<<-EOF
 PORT = ${mtp_port}
 PASSWORD = ${mtp_passwd}
+FAKE-TLS = ${mtp_tls}
 TAG = ${mtp_tag}
 NAT-IPv4 = ${mtp_nat_ipv4}
 NAT-IPv6 = ${mtp_nat_ipv6}
 SECURE = ${mtp_secure}
+BUFFER-WRITE = ${buffer_write}
+BUFFER-READ = ${buffer_read}
+STATS-BIND = ${stats_bind}
+ANTI-REPLAY-MAX-SIZE = ${anti_replay_max_size}
+MULTIPLEX-PER-CONNECTION = ${multiplex_per_connection}
 EOF
 }
 Read_config(){
 	[[ ! -e ${mtproxy_conf} ]] && echo -e "${Error} MTProxy 配置文件不存在 !" && exit 1
 	port=$(cat ${mtproxy_conf}|grep 'PORT = '|awk -F 'PORT = ' '{print $NF}')
 	passwd=$(cat ${mtproxy_conf}|grep 'PASSWORD = '|awk -F 'PASSWORD = ' '{print $NF}')
+	fake_tls=$(cat ${mtproxy_conf}|grep 'FAKE-TLS = '|awk -F 'FAKE-TLS = ' '{print $NF}')
 	tag=$(cat ${mtproxy_conf}|grep 'TAG = '|awk -F 'TAG = ' '{print $NF}')
 	nat_ipv4=$(cat ${mtproxy_conf}|grep 'NAT-IPv4 = '|awk -F 'NAT-IPv4 = ' '{print $NF}')
 	nat_ipv6=$(cat ${mtproxy_conf}|grep 'NAT-IPv6 = '|awk -F 'NAT-IPv6 = ' '{print $NF}')
 	secure=$(cat ${mtproxy_conf}|grep 'SECURE = '|awk -F 'SECURE = ' '{print $NF}')
+	buffer_write=$(cat ${mtproxy_conf}|grep 'BUFFER-WRITE = '|awk -F 'BUFFER-WRITE = ' '{print $NF}')
+	buffer_read=$(cat ${mtproxy_conf}|grep 'BUFFER-READ = '|awk -F 'BUFFER-READ = ' '{print $NF}')
+	stats_bind=$(cat ${mtproxy_conf}|grep 'STATS-BIND = '|awk -F 'STATS-BIND = ' '{print $NF}')
+	anti_replay_max_size=$(cat ${mtproxy_conf}|grep 'ANTI-REPLAY-MAX-SIZE = '|awk -F 'ANTI-REPLAY-MAX-SIZE = ' '{print $NF}')
+	multiplex_per_connection=$(cat ${mtproxy_conf}|grep 'MULTIPLEX-PER-CONNECTION = '|awk -F 'MULTIPLEX-PER-CONNECTION = ' '{print $NF}')
+
 }
 Set_port(){
 	while true
@@ -215,15 +226,39 @@ Set_port(){
 Set_passwd(){
 	while true
 		do
-		echo "请输入 MTProxy 密匙（手动输入必须为32位，[0-9][a-z][A-Z]，建议随机生成）"
-		read -e -p "(避免出错，强烈推荐随机生成，直接回车):" mtp_passwd
+		echo "请输入 MTProxy 密匙（普通密钥必须为32位，[0-9][a-z][A-Z]，建议留空随机生成）"
+		read -e -p "(若需要开启TLS伪装建议直接回车):" mtp_passwd
 		if [[ -z "${mtp_passwd}" ]]; then
-			mtp_passwd=$(date +%s%N | md5sum | head -c 32)
+			echo -e "是否开启TLS伪装？[Y/n]"
+			read -e -p "(默认：Y 启用):" mtp_tls
+			[[ -z "${mtp_tls}" ]] && mtp_tls="Y"
+			if [[ "${mtp_tls}" == [Yy] ]]; then
+				echo -e "请输入TLS伪装域名"
+				read -e -p "(默认：itunes.apple.com):" fake_domain
+				[[ -z "${fake_domain}" ]] && fake_domain="itunes.apple.com"
+				mtp_tls="YES"
+				mtp_passwd=$(${file}/mtg generate-secret -c ${fake_domain} tls)
+			else
+				mtp_tls="NO"
+				mtp_passwd=$(date +%s%N | md5sum | head -c 32)
+			fi
 		else
-			[[ ${#mtp_passwd} != 32 ]] && echo -e "${Error} 请输入正确的密匙（32位字符）。" && continue
+			if [[ ${#mtp_passwd} != 32 ]]; then
+				echo -e "你输入的密钥不是标准秘钥，是否为启用TLS伪装的密钥？[Y/n]"
+				read -e -p "(默认：N 不是):" mtp_tls
+				[[ -z "${mtp_tls}" ]] && mtp_tls="N"
+				if [[ "${mtp_tls}" == [Nn] ]]; then
+					echo -e "${Error} 你输入的密钥不是标准秘钥（32位字符）。" && continue
+				else
+					mtp_tls="YES"
+				fi
+			else
+				mtp_tls="NO"
+			fi
 		fi
 		echo && echo "========================"
-		echo -e "	密码 : ${Red_background_prefix} dd${mtp_passwd} ${Font_color_suffix}"
+		echo -e "	密码 : ${Red_background_prefix} ${mtp_passwd} ${Font_color_suffix}"
+		echo -e "	是否启用TLS伪装 : ${Red_background_prefix} ${mtp_tls} ${Font_color_suffix}"
 		echo "========================" && echo
 		break
 	done
@@ -269,7 +304,7 @@ Set_nat(){
 }
 Set_secure(){
 	echo -e "是否启用强制安全模式？[Y/n]
-只有启用[安全混淆模式]的客户端才能链接(即密匙头部有 dd 字符)，降低服务器被墙几率，建议开启。"
+启用[安全混淆模式]的客户端链接(即密匙头部有 dd 字符)，降低服务器被墙几率，建议开启。"
 	read -e -p "(默认：Y 启用):" mtp_secure
 	[[ -z "${mtp_secure}" ]] && mtp_secure="Y"
 	if [[ "${mtp_secure}" == [Yy] ]]; then
@@ -278,7 +313,7 @@ Set_secure(){
 		mtp_secure="NO"
 	fi
 	echo && echo "========================"
-	echo -e "	强制安全模式 : ${Red_background_prefix} ${mtp_secure} ${Font_color_suffix}"
+	echo -e "	安全模式 : ${Red_background_prefix} ${mtp_secure} ${Font_color_suffix}"
 	echo "========================" && echo
 }
 Set(){
@@ -299,6 +334,7 @@ Set(){
 		Read_config
 		Set_port
 		mtp_passwd=${passwd}
+		mtp_tls=${fake_tls}
 		mtp_tag=${tag}
 		mtp_nat_ipv4=${nat_ipv4}
 		mtp_nat_ipv6=${nat_ipv6}
@@ -322,6 +358,7 @@ Set(){
 		Set_tag
 		mtp_port=${port}
 		mtp_passwd=${passwd}
+		mtp_tls=${fake_tls}
 		mtp_nat_ipv4=${nat_ipv4}
 		mtp_nat_ipv6=${nat_ipv6}
 		mtp_secure=${secure}
@@ -332,6 +369,7 @@ Set(){
 		Set_nat
 		mtp_port=${port}
 		mtp_passwd=${passwd}
+		mtp_tls=${fake_tls}
 		mtp_tag=${tag}
 		mtp_secure=${secure}
 		Write_config
@@ -341,6 +379,7 @@ Set(){
 		Set_secure
 		mtp_port=${port}
 		mtp_passwd=${passwd}
+		mtp_tls=${fake_tls}
 		mtp_tag=${tag}
 		mtp_nat_ipv4=${nat_ipv4}
 		mtp_nat_ipv6=${nat_ipv6}
@@ -366,12 +405,6 @@ Set(){
 Install(){
 	check_root
 	[[ -e ${mtproxy_file} ]] && echo -e "${Error} 检测到 MTProxy 已安装 !" && exit 1
-	echo -e "${Info} 开始设置 用户配置..."
-	Set_port
-	Set_passwd
-	Set_tag
-	Set_nat
-	Set_secure
 	echo -e "${Info} 开始安装/配置 依赖..."
 	Installation_dependency
 	echo -e "${Info} 开始下载/安装..."
@@ -379,6 +412,12 @@ Install(){
 	Download
 	echo -e "${Info} 开始下载/安装 服务脚本(init)..."
 	Service
+	echo -e "${Info} 开始设置 用户配置..."
+	Set_port
+	Set_passwd
+	Set_tag
+	Set_nat
+	Set_secure
 	echo -e "${Info} 开始写入 配置文件..."
 	Write_config
 	echo -e "${Info} 开始设置 iptables防火墙..."
@@ -471,22 +510,25 @@ View(){
 	Read_config
 	#getipv4
 	#getipv6
+	if [[ "${secure}" == "YES" && "${fake_tls}" == "NO" ]]; then
+		passwd="dd${passwd}"
+	fi
 	clear && echo
 	echo -e "Mtproto Proxy 用户配置："
 	echo -e "————————————————"
 	echo -e " 地址\t: ${Green_font_prefix}${nat_ipv4}${Font_color_suffix}"
 	[[ ! -z "${nat_ipv6}" ]] && echo -e " 地址\t: ${Green_font_prefix}${nat_ipv6}${Font_color_suffix}"
 	echo -e " 端口\t: ${Green_font_prefix}${port}${Font_color_suffix}"
-	echo -e " 密匙\t: ${Green_font_prefix}dd${passwd}${Font_color_suffix}"
+	echo -e " 密匙\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
 	[[ ! -z "${tag}" ]] && echo -e " TAG \t: ${Green_font_prefix}${tag}${Font_color_suffix}"
-	echo -e " 链接\t: ${Red_font_prefix}tg://proxy?server=${nat_ipv4}&port=${port}&secret=dd${passwd}${Font_color_suffix}"
-	echo -e " 链接\t: ${Red_font_prefix}https://t.me/proxy?server=${nat_ipv4}&port=${port}&secret=dd${passwd}${Font_color_suffix}"
-	[[ ! -z "${nat_ipv6}" ]] && echo -e " 链接\t: ${Red_font_prefix}tg://proxy?server=${nat_ipv6}&port=${port}&secret=dd${passwd}${Font_color_suffix}"
-	[[ ! -z "${nat_ipv6}" ]] && echo -e " 链接\t: ${Red_font_prefix}https://t.me/proxy?server=${nat_ipv6}&port=${port}&secret=dd${passwd}${Font_color_suffix}"
+	echo -e " 链接\t: ${Red_font_prefix}tg://proxy?server=${nat_ipv4}&port=${port}&secret=${passwd}${Font_color_suffix}"
+	echo -e " 链接\t: ${Red_font_prefix}https://t.me/proxy?server=${nat_ipv4}&port=${port}&secret=${passwd}${Font_color_suffix}"
+	[[ ! -z "${nat_ipv6}" ]] && echo -e " 链接\t: ${Red_font_prefix}tg://proxy?server=${nat_ipv6}&port=${port}&secret=${passwd}${Font_color_suffix}"
+	[[ ! -z "${nat_ipv6}" ]] && echo -e " 链接\t: ${Red_font_prefix}https://t.me/proxy?server=${nat_ipv6}&port=${port}&secret=${passwd}${Font_color_suffix}"
 	echo
-	echo -e " 强制安全模式\t: ${Green_font_prefix}${secure}${Font_color_suffix}"
+	echo -e " TLS伪装模式\t: ${Green_font_prefix}${fake_tls}${Font_color_suffix}"
 	echo
-	echo -e " ${Red_font_prefix}注意\t:${Font_color_suffix} 密匙头部的 ${Green_font_prefix}dd${Font_color_suffix} 字符是代表客户端启用${Green_font_prefix}安全混淆模式${Font_color_suffix}，可以降低服务器被墙几率。\n     \t  另外，在官方机器人处分享账号获取TAG标签时记得删除，获取TAG标签后分享时可以再加上。"
+	echo -e " ${Red_font_prefix}注意\t:${Font_color_suffix} 密匙头部的 ${Green_font_prefix}dd${Font_color_suffix} 字符是代表客户端启用${Green_font_prefix}安全混淆模式${Font_color_suffix}（TLS伪装模式除外），可以降低服务器被墙几率。\n     \t  另外，在官方机器人处分享账号获取TAG标签时记得删除，获取TAG标签后分享时可以再加上。"
 }
 View_Log(){
 	check_installed_status
@@ -693,6 +735,7 @@ crontab_monitorip(){
 	if [[ ${monitorip_yn} == "YES" ]]; then
 		mtp_port=${port}
 		mtp_passwd=${passwd}
+		mtp_tls=${fake_tls}
 		mtp_tag=${tag}
 		mtp_secure=${secure}
 		Write_config

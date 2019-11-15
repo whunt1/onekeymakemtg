@@ -35,16 +35,30 @@ read_config(){
 	[[ ! -e ${CONF} ]] && echo -e "${Error} $NAME 配置文件不存在 !" && exit 1
 	port=$(cat ${CONF}|grep 'PORT = '|awk -F 'PORT = ' '{print $NF}')
 	password=$(cat ${CONF}|grep 'PASSWORD = '|awk -F 'PASSWORD = ' '{print $NF}')
+	fake_tls=$(cat ${CONF}|grep 'FAKE-TLS = '|awk -F 'FAKE-TLS = ' '{print $NF}')
 	tag=$(cat ${CONF}|grep 'TAG = '|awk -F 'TAG = ' '{print $NF}')
 	nat_ipv4=$(cat ${CONF}|grep 'NAT-IPv4 = '|awk -F 'NAT-IPv4 = ' '{print $NF}')
 	nat_ipv6=$(cat ${CONF}|grep 'NAT-IPv6 = '|awk -F 'NAT-IPv6 = ' '{print $NF}')
 	secure=$(cat ${CONF}|grep 'SECURE = '|awk -F 'SECURE = ' '{print $NF}')
+	buffer_write=$(cat ${CONF}|grep 'BUFFER-WRITE = '|awk -F 'BUFFER-WRITE = ' '{print $NF}')
+	buffer_read=$(cat ${CONF}|grep 'BUFFER-READ = '|awk -F 'BUFFER-READ = ' '{print $NF}')
+	stats_bind=$(cat ${CONF}|grep 'STATS-BIND = '|awk -F 'STATS-BIND = ' '{print $NF}')
+	anti_replay_max_size=$(cat ${CONF}|grep 'ANTI-REPLAY-MAX-SIZE = '|awk -F 'ANTI-REPLAY-MAX-SIZE = ' '{print $NF}')
+	multiplex_per_connection=$(cat ${CONF}|grep 'MULTIPLEX-PER-CONNECTION = '|awk -F 'MULTIPLEX-PER-CONNECTION = ' '{print $NF}')
 	[[ ! -z "${nat_ipv4}" ]] && nat_ipv4="-4 \"${nat_ipv4}\""
 	[[ ! -z "${nat_ipv6}" ]] && nat_ipv6="-6 \"${nat_ipv6}\""
-	if [[ "${secure}" == "YES" ]]; then
-		secure="-s"
+	[[ ! -z "${buffer_write}" ]] && buffer_write="-w ${buffer_write}"
+	[[ ! -z "${buffer_read}" ]] && buffer_read="-r ${buffer_read}"
+	[[ ! -z "${stats_bind}" ]] && stats_bind="--stats-bind=${stats_bind}"
+	[[ ! -z "${anti_replay_max_size}" ]] && anti_replay_max_size="--anti-replay-max-size=${anti_replay_max_size}"
+	[[ ! -z "${multiplex_per_connection}" ]] && multiplex_per_connection="--multiplex-per-connection=${multiplex_per_connection}"
+	if [[ "${secure}" == "YES" && "${fake_tls}" == "NO" ]]; then
+		password="dd${password}"
+	fi
+	if [[ "${fake_tls}" == "YES" ]]; then
+		tls_port="--cloak-port=${port}"
 	else
-		secure=""
+		tls_port=""
 	fi
 }
 do_start(){
@@ -56,7 +70,7 @@ do_start(){
 		cd ${FILE}
 		echo -e "${Info} $NAME 启动中..."
 		ulimit -n 51200
-		eval nohup ./mtg -b 0.0.0.0 -p ${port} $(echo ${nat_ipv4}) $(echo ${nat_ipv6}) -q 65436 $(echo ${secure}) "${password}" "${tag}" >> "${LOG}" 2>&1 &
+		eval nohup ./mtg run -b 0.0.0.0:${port} $(echo ${tls_port}) $(echo ${nat_ipv4}) $(echo ${nat_ipv6}) $(echo ${buffer_write}) $(echo ${buffer_read}) $(echo ${stats_bind}) $(echo ${anti_replay_max_size}) $(echo ${multiplex_per_connection})  "${password}" "${tag}" >> "${LOG}" 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
