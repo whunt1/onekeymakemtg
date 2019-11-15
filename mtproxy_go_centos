@@ -46,7 +46,7 @@ read_config(){
 	anti_replay_max_size=$(cat ${CONF}|grep 'ANTI-REPLAY-MAX-SIZE = '|awk -F 'ANTI-REPLAY-MAX-SIZE = ' '{print $NF}')
 	multiplex_per_connection=$(cat ${CONF}|grep 'MULTIPLEX-PER-CONNECTION = '|awk -F 'MULTIPLEX-PER-CONNECTION = ' '{print $NF}')
 	[[ ! -z "${nat_ipv4}" ]] && nat_ipv4="-4 \"${nat_ipv4}:${port}\""
-	[[ ! -z "${nat_ipv6}" ]] && nat_ipv6="-6 \"${nat_ipv6}:${port}\""
+	[[ ! -z "${nat_ipv6}" ]] && nat_ipv6="-6 \"[${nat_ipv6}]:${port}\""
 	[[ ! -z "${buffer_write}" ]] && buffer_write="-w ${buffer_write}"
 	[[ ! -z "${buffer_read}" ]] && buffer_read="-r ${buffer_read}"
 	[[ ! -z "${stats_bind}" ]] && stats_bind="--stats-bind=\"${stats_bind}\""
