@@ -19,7 +19,28 @@ wget -N --no-check-certificate https://github.com/whunt1/onekeymakemtg/raw/maste
 
 # 编译安装最新go版mtproxy教程
 
-安装基础环境   
+有空的话我会更新编译好的文件到 [mtg-linux-amd64](https://github.com/whunt1/onekeymakemtg/blob/master/mtg-linux-amd64) 
+    
+只支持 linux-amd64，使用如下命令下载安装
+    
+```bash
+# Ubuntu/Debian
+apt-get install -y psmisc
+wget -O mtg --no-check-certificate https://raw.githubusercontent.com/whunt1/onekeymakemtg/master/mtg-linux-amd64
+mv mtg /usr/local/bin/mtg
+chmod +x /usr/local/bin/mtg
+# CentOS
+yum install -y psmisc
+wget -O mtg --no-check-certificate https://raw.githubusercontent.com/whunt1/onekeymakemtg/master/mtg-linux-amd64
+mv mtg /usr/local/bin/mtg
+chmod +x /usr/local/bin/mtg
+```
+
+下载完成后直接参考[使用方法](#运行)，以下为详细手动安装步骤
+
+## 安装基础环境 
+
+选择对应系统执行以下命令
 
 ```bash
 # Ubuntu/Debian
@@ -28,7 +49,9 @@ apt-get install -y git gcc automake autoconf libtool make psmisc
 yum install -y git gcc automake autoconf libtool make psmisc
 ```
 
-然后下载安装go语言编译环境  
+## 安装 go
+
+下载安装go语言编译环境
 
 ```bash
 wget -N --no-check-certificate https://dl.google.com/go/go1.13.4.linux-amd64.tar.gz 
@@ -40,6 +63,8 @@ export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 cd $HOME
 ```
 
+## 编译安装
+
 拉取 mtproxy-go 源码并编译安装，编译完成过后，输出在当前目录，文件名为 mtp
 
 ```bash
@@ -50,6 +75,8 @@ go build
 mv $HOME/mtg/mtg /usr/local/bin/mtg
 chmod +x /usr/local/bin/mtg
 ```
+
+## 运行
 
 直接输入 `mtg` 即可调用
 
