@@ -23,18 +23,19 @@ wget -N --no-check-certificate https://github.com/whunt1/onekeymakemtg/raw/maste
 
 ```bash
 # Ubuntu/Debian
-apt-get install -y git gcc automake autoconf libtool make
+apt-get install -y git gcc automake autoconf libtool make psmisc
 # CentOS
-yum install -y git gcc automake autoconf libtool make
+yum install -y git gcc automake autoconf libtool make psmisc
 ```
 
 然后下载安装go语言编译环境  
 
 ```bash
-wget -N --no-check-certificate https://dl.google.com/go/go1.13.4.linux-amd64.tar.gz && tar -xvf go1.13.4.linux-amd64.tar.gz
+wget -N --no-check-certificate https://dl.google.com/go/go1.13.4.linux-amd64.tar.gz 
+tar -xvf go1.13.4.linux-amd64.tar.gz && rm -rf go1.13.4.linux-amd64.tar.gz
 mv go /usr/local
 export GOROOT=/usr/local/go
-export GOPATH=$HOME/mtg
+export GOPATH=$HOME/mtg/tmp
 export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 cd $HOME
 ```
@@ -46,7 +47,7 @@ git clone -b master https://github.com/9seconds/mtg.git $HOME/mtg
 cd $HOME/mtg
 go mod download
 go build
-mv $HOME/mtg/mtg /usr/loacl/bin/mtg
+mv $HOME/mtg/mtg /usr/local/bin/mtg
 chmod +x /usr/local/bin/mtg
 ```
 
@@ -64,6 +65,19 @@ chmod +x /usr/local/bin/mtg
 
 生成TLS伪装密钥（以 `itunes.apple.com` 为例）：`mtg generate-secret -c itunes.apple.com tls`
 
-运行示例：`mtg run -b 0.0.0.0:443 --cloak-port=443 ee055a9b283c6ef2fbea89a374df31e7966974756e65732e6170706c652e636f6d`
+运行示例：
+
+```bash
+mtg run -b 0.0.0.0:443 --cloak-port=443 ee055a9b283c6ef2fbea89a374df31e7966974756e65732e6170706c652e636f6d
+```
+
+后台运行：
+
+```bash
+nohup mtg run -b 0.0.0.0:443 --cloak-port=443 ee055a9b283c6ef2fbea89a374df31e7966974756e65732e6170706c652e636f6d >> /tmp/mtg.log 2>&1 &
+```
+查看日志：`cat /tmp/mtg.log`
+
+结束进程：`killall mtg`
 
 更多运行参数参见 [mtg 文档](https://github.com/9seconds/mtg#environment-variables)

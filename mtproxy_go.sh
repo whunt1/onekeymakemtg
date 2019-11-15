@@ -121,17 +121,18 @@ Download(){
 		export GOROOT=/tmp/go
 		export GOPATH=${file}
 		export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-		[[ ! -e "/tmp/go/VERSION" ]] && echo -e "${Error} go 安装失败 !" && rm -rf "${file}" && exit 1
-		echo -e "${Info} go 安装完成 版本:\c" && cat "${file}/go/VERSION" && echo -e " "
+		[[ ! -e "/tmp/go/VERSION" ]] && echo -e "${Error} go 安装失败 !" && rm -rf "/tmp/go" && exit 1
+		echo -e "${Info} go 安装完成 版本:\c" && cat "/tmp/go/VERSION" && echo -e " "
 	else
 		export GOROOT=/tmp/go
 		export GOPATH=${file}
 		export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-		echo -e "${Info} go 已安装 版本:\c" && cat "${file}/go/VERSION" && echo -e " "
+		echo -e "${Info} go 已安装 版本:\c" && cat "/tmp/go/VERSION" && echo -e " "
 	fi
 	echo -e "${Info} 开始拉取 mtproxy-go 源码 时间较长请耐心等待"
 	git clone -b master https://github.com/9seconds/mtg.git src
-	cd src & go mod download 
+	cd "${file}/src"
+	go mod download 
 	echo -e "${Info} 开始编译 mtproxy-go 源码 时间较长请耐心等待"
 	go build
 	if [[ ! -e "${file}/src/mtg" ]]; then
@@ -140,7 +141,7 @@ Download(){
 	else
 		mv "mtg" "${file}/mtg"
 	fi
-	cd ${file}
+	cd "${file}"
 	[[ ! -e "mtg" ]] && echo -e "${Error} MTProxy 重命名失败 !" && rm -rf "${file}" && exit 1
 	rm -rf "${file}/src" && rm -rf "${file}/go" && rm -rf "${file}/pkg"
 	chmod +x mtg
