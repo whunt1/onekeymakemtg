@@ -1,5 +1,5 @@
 # 编译安装最新版 mtproxy-go 一键脚本   
-因为go版mtproxy代码更新了抗重放攻击等功能后，原作者没有直接放出编译好的程序，所以根据逗比原版一键脚本魔改，直接拉取最新代码进行编译
+因为go版mtproxy代码更新了抗重放攻击等功能后，原作者没有直接放出编译好的程序，所以根据逗比原版一键脚本魔改，直接拉取最新代码进行编译，**最新版已经支持 TLS 伪装**
    
 * 脚本说明: Mtproto Proxy Go版 一键编译安装管理脚本
 * 系统支持: CentOS6+ / Debian7+ / Ubuntu14+
@@ -19,19 +19,19 @@ wget -N --no-check-certificate https://github.com/whunt1/onekeymakemtg/raw/maste
 
 # 编译安装最新go版mtproxy教程
 
-有空的话我会更新编译好的文件到 [mtg-linux-amd64](https://github.com/whunt1/onekeymakemtg/blob/master/mtg-linux-amd64) 
+有空的话我会更新编译好的文件到 [builds](https://github.com/whunt1/onekeymakemtg/tree/master/builds) 
     
-只支持 linux-amd64，使用如下命令下载安装
+使用如下命令下载安装（以 linux-amd64 为例）
     
 ```bash
 # Ubuntu/Debian
 apt-get install -y psmisc
-wget -O mtg --no-check-certificate https://raw.githubusercontent.com/whunt1/onekeymakemtg/master/mtg-linux-amd64
+wget -O mtg --no-check-certificate https://raw.githubusercontent.com/whunt1/onekeymakemtg/master/builds/mtg-linux-amd64
 mv mtg /usr/local/bin/mtg
 chmod +x /usr/local/bin/mtg
 # CentOS
 yum install -y psmisc
-wget -O mtg --no-check-certificate https://raw.githubusercontent.com/whunt1/onekeymakemtg/master/mtg-linux-amd64
+wget -O mtg --no-check-certificate https://raw.githubusercontent.com/whunt1/onekeymakemtg/master/builds/mtg-linux-amd64
 mv mtg /usr/local/bin/mtg
 chmod +x /usr/local/bin/mtg
 ```

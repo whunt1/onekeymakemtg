@@ -134,7 +134,7 @@ Download(){
 	cd "${file}/src"
 	go mod download 
 	echo -e "${Info} 开始编译 mtproxy-go 源码 时间较长请耐心等待"
-	go build
+	make
 	if [[ ! -e "${file}/src/mtg" ]]; then
 		echo -e "${Error} MTProxy 编译失败 !"
 		rm -rf "${file}" && exit 1
