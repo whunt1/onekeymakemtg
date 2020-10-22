@@ -114,7 +114,7 @@ Download(){
 	echo -e "${Info} 开始检查编译环境！"
 	if [[ ! -e "/tmp/go/VERSION" ]]; then
 		echo -e "${Info} 开始安装编译环境！"
-		go_download_link=$(wget -qO- "https://golang.org/dl/" | sed -n '/class="download downloadBox"/,+1 s/.*href="\([^"]*\).*$/\1/p' | grep "linux-amd64")
+		go_download_link="https://golang.org"$(wget -qO- "https://golang.org/dl/" | sed -n '/class="download downloadBox"/,+1 s/.*href="\([^"]*\).*$/\1/p' | grep "linux-amd64")
 		wget -N --no-check-certificate ${go_download_link}
 		tar -xf go*linux-amd64.tar.gz && rm -f go*linux-amd64.tar.gz
 		mv go /tmp/go
