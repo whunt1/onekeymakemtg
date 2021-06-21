@@ -130,7 +130,7 @@ Download(){
 		echo -e "${Info} go 已安装 版本:\c" && cat "/tmp/go/VERSION" && echo -e " "
 	fi
 	echo -e "${Info} 开始拉取 mtproxy-go 源码 时间较长请耐心等待"
-	git clone -b master https://github.com/9seconds/mtg.git src
+	git clone -b v1 https://github.com/9seconds/mtg.git src
 	cd "${file}/src"
 	go mod download 
 	echo -e "${Info} 开始编译 mtproxy-go 源码 时间较长请耐心等待"
